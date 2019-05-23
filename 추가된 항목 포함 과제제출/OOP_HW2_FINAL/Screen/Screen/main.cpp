@@ -434,9 +434,9 @@ int main()
 
 				if (i != countOfBullets)
 				{
-					bullets[i].fire(player.getPosition(), player.getDirection(),enemies);
+					bullets[i].fire(player.getPosition(), player.getDirection(), enemies);
 				}
-				
+
 				break;
 			}
 		}
@@ -451,7 +451,7 @@ int main()
 					enemies[i].resetAllInfo(&player);
 					currentEnemySpawnFrame = 0;
 					break;
-					
+
 				}
 			}
 		}
@@ -477,7 +477,7 @@ int main()
 		//	bullets[i].update(/*enemies[targetEnemy].getPosition()*/);
 		//}
 
-		
+
 		for (int i = 0; i < 16; ++i)
 		{
 			if (gameObjects[i] == nullptr) continue;
@@ -500,11 +500,27 @@ int main()
 
 
 		// 플레이어가 죽었을때 처리
-		if (player.isAlive() == false)
+
+
+		Player * pP = nullptr;
+
+		for (int i = 0; i < 16; ++i)
 		{
-			cout << "player is dead / countOfEnemyKilled is " << countOfEnemyKilled << endl;
+			pP = dynamic_cast<Player *>(gameObjects[i]);
+			if (pP == nullptr) continue;
+
 			break;
 		}
+
+		if (pP != nullptr)
+		{
+			if (pP->isAlive() == false)
+			{
+				cout << "player is dead / countOfEnemyKilled is " << countOfEnemyKilled << endl;
+				break;
+			}
+		}
+
 
 		Sleep(66);
 	}
