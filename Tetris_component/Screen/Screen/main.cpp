@@ -33,94 +33,41 @@ class GameObject;
 class Components;
 class Transform;
 
-class GameObject {
-	bool enabled;
-	string name;
-	string tag;
-	GameObject* parent;
-	vector<Component *>components;
-	static vector<GameObject *>gameObjects;
-	Transform* transform;
+using namespace std;
 
-public:
-	GameObject(const string& name, GameObject* parent = nullptr, const string& tag = "")
-		: name(name), tag(tag), enabled(true), parent(parent),
-		transform(new Transform(this)) {
-		components.clear();
-		components.push_back(transform);
-	}
+class GameObject;
+class Component;
+class Transform;
 
-	~GameObject()
-	{
-	}
-
-	Transform* getTransform()
-	{
-		return transform;
-	}
-
-	static GameObject* Find(const string& path)
-	{
-	}
-
-	void setParent(GameObject* parent)
-	{
-		this->parent = parent;
-	}
-
-	virtual bool isActive() { return enabled; }
-	void setActive(bool flag = true) { enabled = flag; }
-
-};
 /*
 
-		void internalDraw(const Position& inheritedPos = Position{ 0, 0 }) {
-			if (!enabled) return;
+	void internalDraw(const Position& inheritedPos = Position{ 0, 0 }) {
+		if (!enabled) return;
 
-			draw(inheritedPos);
+		draw(inheritedPos);
 
-			for (auto& child : children) child->internalDraw(pos + inheritedPos);
-		}
+		for (auto& child : children) child->internalDraw(pos + inheritedPos);
+	}
 
-		virtual void draw(const Position& inheritedPos = Position{ 0, 0 }) {
-			screen.draw(shape, width, height, pos + inheritedPos);
-		}
+	virtual void draw(const Position& inheritedPos = Position{ 0, 0 }) {
+		screen.draw(shape, width, height, pos + inheritedPos);
+	}
 
-		void internalUpdate() {
-			if (!enabled) return;
-			update();
-			for (auto& child : children) child->internalUpdate();
-		}
+	void internalUpdate() {
+		if (!enabled) return;
+		update();
+		for (auto& child : children) child->internalUpdate();
+	}
 
-		virtual void update() {}
-	*/
+	virtual void update() {}
+*/
+
 
 int main()
 {
-	Screen&	 screen = Screen::getInstance();
+	GameEngine& engine = GameEngine::getInstance();
 
-	string mode = "mode con cols=" + to_string(screen.getWidth() + 10);
-	mode += " lines=" + to_string(screen.getHeight() + 5);
-
-	std::system(mode.c_str());
-	std::system("chcp 437");
-
-
-	screen.clear(); screen.render();
-
-	while (!Input::GetKeyDown(KeyCode::Esc)) {
-		screen.clear();
-		// update		
-
-		// erase in active objects
-
-		// draw
-
-		screen.render();
-		Sleep(100);
-
-		Input::EndOfFrame();
-	}
+	engine.mainLoop();
 
 	return 0;
 }

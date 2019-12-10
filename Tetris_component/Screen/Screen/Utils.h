@@ -1,3 +1,9 @@
+//컴파일하면서 GameEngine에서 util이 두번 호출된다. 메인.obj에서도,메인.obj 둘다에 유틸의 스테틱변수가 들어있음.
+//소스코드에 분리해서 넣으면 헤더파일에 선언만 해두고 소스는 소스코드 안에 있다. 이 것 때문에 소스코드를 분리하느 것이다.(전방위 선언때문에)
+//#ifndef _CRT_SECURE_NO_WARNINGS
+//#define _CRT_SECURE_NO_WARNINGS
+//#endif // !_CRT_SECURE_NO_WARNINGS전처리 됬는지 확인하게 함.
+
 #ifndef UTILS_H_
 #define UTILS_H_
 #include <cstdio>
@@ -7,16 +13,19 @@
 #include <iostream>
 #include <cstring>
 #include <string.h>
-// _CRT_SECURE_NO_WARNINGS
 
+//컴파일할때 소스코드를 컴파일 하기 위해서 헤더파일이 컴파일된 것 처럼 보일 뿐이다.
+//그래서 util에서도 _CRT_SECURE_NO_WARNINGS 다시 넣어줘야 한다.
 using namespace std;
 
 struct Vector2
 {
 	float x;
 	float y;
+	const int X() const { return (int)x; }
+	const int Y() const { return (int)y; }
 	Vector2(float x = 0, float y = 0) : x(x), y(y) {}
-	explicit Vector2(const Vector2& other) : Vector2(other.x, other.y) {}
+	Vector2(const Vector2& other) : Vector2(other.x, other.y) {}
 
 	static Vector2 zero;
 	static Vector2 ones;
@@ -25,22 +34,25 @@ struct Vector2
 	static Vector2 left;
 	static Vector2 right;
 
+	//x,y는 float니까 제곱하면 더블일 수 있음.
 	float magnitude() {
 		return sqrt(this->sqrtMagnitude());
 
 	}
+	//변수와 비슷한 함수들의 집합이다. 겉보기에는 변수처럼 보임.  매그니투드를 변수로 쓰는 것이 적합하지 않기 때문에 함수로쓴다.
+
 	double sqrtMagnitude() {
-		return (double)x*x + y * y;
+		return (double)x*x + y * y;//x,y는 float니까 제곱하면 더블일 수 있음.
 	}
-	static float Distance(const Vector2& a, const Vector2& b)
-	{
-		return(a - b).magnitude();
-	}
+
 	Vector2 operator-(const Vector2& other)
 	{
 		return { this->x - other.x, this->y - other.y };
 	}
 
+	static friend Vector2 operator-(Vector2& a, const Vector2& b);
+	//글로벌 이라고 표현할 때 네임스페이스 생략하고. strcpy라고 쓸 때 앞에 ::생략 하는 것이다.
+	static friend double Distance(Vector2& a, const Vector2& b);
 
 	Vector2 operator+(const Vector2& other) {
 		return { this->x + other.x, this->y + other.y };
@@ -59,36 +71,26 @@ struct Vector2
 };
 
 
-Vector2 Vector2::zero{ 0.0f,0.0f };
-Vector2 Vector2::ones{ 1.0f,1.0f };
-Vector2 Vector2::up{ 0.0f,1.0f };
-Vector2 Vector2::down{ 0.0f,-1.0f };
-Vector2 Vector2::left{ -1.0f,0.0f };
-Vector2 Vector2::right{ 1.0f,0.0f };
+//
+//Vector2 Vector2::zero{ 0, 0};
+//Vector2 Vector2::ones{ 1, 1 };
+//Vector2 Vector2::up{ 0, 1 };
+//Vector2 Vector2::down{ 0, -1 };
+//Vector2 Vector2::left{ -1, 0 };
+//Vector2 Vector2::right{ 1, 0 };
+//
+//Vector2 operator-(Vector2& a, const Vector2& b)
+//{	
+//	return (a.operator-(b));
+//}
+//
+//double :: Distance(Vector2& a, const Vector2& b)
+//{
+//	return (a.operator-(b)).magnitude();
+//}
+//::strcpy앞에 글로벌 스코어를 설명하는 것이라고 생각하면 된다.
 
 
-struct Position {
-	int x;
-	int y;
-	Position(int x = 0, int y = 0) : x(x), y(y) {}
-	Position(const Position& other) : Position(other.x, other.y) {}
-
-	Position operator+(const Position& other) {
-		return Position{ this->x + other.x, this->y + other.y };
-	}
-	bool operator==(const Position& other) {
-		return (x == other.x && y == other.y);
-	}
-
-	Position& operator+=(const Position& other) {
-		x += other.x, y += other.y;
-		return *this;
-	}
-};
-Vector2 operator-(const Vector2 & a, const Vector2 & b)
-{
-	return { a.x - b.x, a.y - b.y };
-}
 
 
 enum class KeyCode {
@@ -104,12 +106,12 @@ enum class KeyCode {
 	A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z
 };
 
-static vector<WORD> keyCodeTable{
-	VK_SPACE, VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
-	VK_ESCAPE, VK_RETURN, 
-	0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
-	0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A
-};
+//static vector<WORD> keyCodeTable{
+//	VK_SPACE, VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
+//	VK_ESCAPE, VK_RETURN, 
+//	0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
+//	0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A
+//};
 
 
 class Input {
@@ -121,44 +123,16 @@ class Input {
 	static Position mousePosition;
 	static WORD vKeyCode;
 
-	static void GetEvent()
-	{
-		evaluated = true;
-		DWORD numEvents = 0;
-
-		GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE), &numEvents);
-		if (!numEvents) return;
-
-		ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), InputRecord, numEvents, &Events);
-		for (int i = 0; i < Events; i++) {
-			if (InputRecord[i].EventType == MOUSE_EVENT) {
-				if (InputRecord[i].Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) {
-					COORD coord;
-					coord.X = InputRecord[i].Event.MouseEvent.dwMousePosition.X;
-					coord.Y = InputRecord[i].Event.MouseEvent.dwMousePosition.Y;
-					SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-					mousePosition.x = InputRecord[i].Event.MouseEvent.dwMousePosition.X;
-					mousePosition.y = InputRecord[i].Event.MouseEvent.dwMousePosition.Y;
-					gotMouseEvent = true;
-				}
-			}
-			else if (InputRecord[i].EventType == KEY_EVENT) {
-				if (InputRecord[i].Event.KeyEvent.bKeyDown) {
-					vKeyCode = InputRecord[i].Event.KeyEvent.wVirtualKeyCode;
-					gotKeyEvent = true;
-				}
-			}
-		}
-	}
+	
 
 public:
 
-	static void EndOfFrame()
-	{
+	static void EndOfFrame();
+	/*{
 		evaluated = false;
 		gotMouseEvent = false;
 		gotKeyEvent = false;
-	}
+	}*/
 
 	static void Initialize()
 	{
@@ -167,49 +141,23 @@ public:
 		cci.dwSize = 25;
 		cci.bVisible = FALSE;
 		SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cci);
-		SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT );
+		SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT);
 
 		EndOfFrame();
 	}
-	static bool GetMouseEvent(Position& pos) {
-		if (evaluated == false) GetEvent();
+	static bool GetMouseEvent(Vector2& pos);
 
-		if (gotMouseEvent == true) {
-			pos = mousePosition;
-			return true;
-		}
-		return false;}
+	static bool GetKeyEvent(WORD& keyCode);
 
-	static bool GetKeyEvent(WORD& keyCode) {
-		if (evaluated == false) GetEvent();
-
-		if (gotKeyEvent == true) {
-			keyCode = vKeyCode;
-			return true;
-		}
-		return false;
-	}
-
-	static bool GetKeyDown(KeyCode key) {
-		if (evaluated == false) GetEvent();
-
-		if (gotKeyEvent == true) return keyCodeTable[(int)key] == vKeyCode;		
-		return false;
-	}
+	static bool GetKeyDown(KeyCode key);
 };
-INPUT_RECORD Input::InputRecord[128];
-DWORD Input::Events;
 
-bool Input::evaluated = false;
-bool Input::gotMouseEvent = false;
-bool Input::gotKeyEvent = false;
-Position Input::mousePosition{ -1, -1 };
-WORD Input::vKeyCode{ 0 };
+
 
 class Borland {
 
 public:
-	
+
 
 	static int wherex()
 	{
@@ -227,14 +175,14 @@ public:
 	{
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), _COORD{ (SHORT)x, (SHORT)y });
 	}
-	static void gotoxy(const Position* pos)
+	static void gotoxy(const Vector2* pos)
 	{
 		if (!pos) return;
-		gotoxy( (*pos).x, (*pos).y);
+		gotoxy((*pos).X(), (*pos).Y());
 	}
-	static void gotoxy(const Position& pos)
+	static void gotoxy(const Vector2& pos)
 	{
-		gotoxy( pos.x, pos.y);
+		gotoxy(pos.X(), pos.Y());
 	}
 };
 
@@ -268,28 +216,31 @@ public:
 
 	int getWidth() const { return width; }
 
-	int getHeight() const { return height;  }
+	int getHeight() const { return height; }
 
-	void drawRect(const Position& pos, int w, int h)
+	void drawRect(const Vector2& pos, int w, int h)
 	{
-		canvas[pos.x] = '\xDA';
-		canvas[pos.x + w-1] = '\xBF';
-		memset(&canvas[pos.x + 1], '\xC4', w - 2);
-		canvas[pos.x + (pos.y + (h - 1))*(width + 1)] = '\xC0';
-		canvas[pos.x + (pos.y + (h - 1))*(width + 1) + w-1] = '\xD9';
-		memset(&canvas[pos.x + 1 + (pos.y + (h - 1))*(width + 1)], '\xC4', w - 2);
-		for (int i = 1; i < h-1; i++) {
-			canvas[pos.x + (pos.y + i)*(width + 1)] = '\xB3';
-			canvas[pos.x + w-1 + (pos.y + i)*(width + 1)] = '\xB3';
+		canvas[pos.X()] = '\xDA';
+		canvas[pos.X() + w - 1] = '\xBF';
+		memset(&canvas[pos.X() + 1], '\xC4', w - 2);
+		canvas[pos.X() + (pos.Y() + (h - 1))*(width + 1)] = '\xC0';
+		canvas[pos.X() + (pos.Y() + (h - 1))*(width + 1) + w - 1] = '\xD9';
+		memset(&canvas[pos.X() + 1 + (pos.Y() + (h - 1))*(width + 1)], '\xC4', w - 2);
+		for (int i = 1; i < h - 1; i++) {
+			canvas[pos.X() + (pos.Y() + i)*(width + 1)] = '\xB3';
+			canvas[pos.X() + w - 1 + (pos.Y() + i)*(width + 1)] = '\xB3';
 		}
 	}
 
-	void draw(const char* shape, int w, int h, const Position& pos)
+	void draw(const char* shape, int w, int h, const Vector2& pos)
 	{
 		if (!shape) return;
 		for (int i = 0; i < h; i++)
-		{
-			strncpy(&canvas[pos.x + (pos.y + i)*(width + 1)], &shape[i*w], w);
+		{//safe버전이 필요한 이유(SECURE_NO_WARNINGS그거): 버퍼 오버플로우문제 때문에. 파라미터가 들어가는데 포인터변수만 들어가서 
+			//널로 끝나지 않는 주소를 보내줬을 때, 버퍼공간이 입력된 포인터에 대해서 얼마나 큰지 모르기 때문에 이 값들을 잃을 수 있따.
+			//입력파라미터는 어떤 것이든 들어갈 수 있다.RETURN주소 넣다보면 널값으로 안끝났을 때, 해당하는 범위를 벗어나 리턴 주소까지 건드려 버린다.
+			//최대 버퍼사이즈가 얼마인지 미리 명시해주는 것.
+			strncpy(&canvas[pos.X() + (pos.Y() + i)*(width + 1)], &shape[i*w], w);
 		}
 	}
 
@@ -299,7 +250,7 @@ public:
 			canvas[width + i * (width + 1)] = '\n';
 		canvas[width + (height - 1) * (width + 1)] = '\0';
 		Borland::gotoxy(0, 0);
-		cout << canvas;
+		std::cout << canvas;
 	}
 
 	void clear()
@@ -309,6 +260,7 @@ public:
 	}
 };
 
-Screen* Screen::instance = nullptr;
+
 
 #endif 
+

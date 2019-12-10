@@ -7,6 +7,11 @@ Component::Component(GameObject * gameObject)
 	transform(gameObject->getTransform())
 {}
 
+Component::~Component()
+{
+}
+
+
 // Transform
 void Transform::start()
 {
